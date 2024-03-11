@@ -68,7 +68,7 @@ function App() {
 
       {importedData && (
         <div>
-          <div className="total-imported">{`Total Importado: ${importedData.totalImported}`}</div>
+          <div className="total-imported">{`Total Imported: ${importedData.totalImported}`}</div>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             {Object.entries(importedData).map(([category, data]) => (
               category !== 'totalImported' && (
