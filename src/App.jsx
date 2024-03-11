@@ -1,12 +1,14 @@
-import './App.css'
 import React, { useState } from 'react';
 
-function App (){
+function App() {
 
+  const [loading, setLoading] = useState(false);
   const [importedData, setImportedData] = useState(null);
 
   const handleImport = async () => {
     try {
+      setLoading(true);
+
       const response = await fetch('http://localhost:8080/orders/import', {
         method: 'GET',
       });
@@ -15,15 +17,19 @@ function App (){
         const data = await response.json();
         setImportedData(data);
       } else {
-        console.error('Error en la solicitud', response.status);
+        console.error('Request error', response.status);
       }
     } catch (error) {
-      console.error('Error de red', error);
+      console.error('Red error', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDownload = async () => {
     try {
+      setLoading(true);
+
       const response = await fetch('http://localhost:8080/orders/download', {
         method: 'GET',
       });
@@ -39,49 +45,44 @@ function App (){
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       } else {
-        console.error('Error en la solicitud', response.status);
+        console.error('Request error', response.status);
       }
     } catch (error) {
-      console.error('Error de red', error);
+      console.error('Red error', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
+    <div style={{ textAlign: 'center' }}>
       <button onClick={handleImport}>Import</button>
       <button onClick={handleDownload}>Download</button>
 
+      {loading && (
+        <div>
+          <p>This may take a few minutes...</p>
+          <div>Loading...</div>
+        </div>
+      )}
+
       {importedData && (
         <div>
-          <h2>Total Importado: {importedData.totalImported}</h2>
-
-          <h3>Tipos de Artículos:</h3>
-          <ul style={{ overflowX: 'auto', whiteSpace: 'nowrap', display: 'inline-block' }}>
-            {Object.entries(importedData.itemTypes).map(([type, count]) => (
-              <li key={type} style={{ marginRight: '10px' }}>{`${type}: ${count}`}</li>
+          <div className="total-imported">{`Total Importado: ${importedData.totalImported}`}</div>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            {Object.entries(importedData).map(([category, data]) => (
+              category !== 'totalImported' && (
+                <div key={category} style={{ margin: '20px', textAlign: 'center' }}>
+                  <h2>{category}</h2>
+                  <ul>
+                    {Object.entries(data).map(([key, value]) => (
+                      <li key={key}>{`${key}: ${value}`}</li>
+                    ))}
+                  </ul>
+                </div>
+              )
             ))}
-          </ul>
-
-          <h3>Canales de Venta:</h3>
-          <ul style={{ overflowX: 'auto', whiteSpace: 'nowrap', display: 'inline-block' }}>
-            {Object.entries(importedData.salesChannel).map(([channel, count]) => (
-              <li key={channel} style={{ marginRight: '10px' }}>{`${channel}: ${count}`}</li>
-            ))}
-          </ul>
-
-          <h3>Prioridades:</h3>
-          <ul style={{ overflowX: 'auto', whiteSpace: 'nowrap', display: 'inline-block' }}>
-            {Object.entries(importedData.priority).map(([priority, count]) => (
-              <li key={priority} style={{ marginRight: '10px' }}>{`${priority}: ${count}`}</li>
-            ))}
-          </ul>
-
-          <h3>Países:</h3>
-          <ul style={{ overflowX: 'auto', whiteSpace: 'nowrap', display: 'inline-block' }}>
-            {Object.entries(importedData.country).map(([country, count]) => (
-              <li key={country} style={{ marginRight: '10px' }}>{`${country}: ${count}`}</li>
-            ))}
-          </ul>
+          </div>
         </div>
       )}
     </div>
