@@ -27,4 +27,5 @@ Resultados de importación
 - CSS
 
 # 🚀 Development deploy
+`npm install`
 `npm run dev`
